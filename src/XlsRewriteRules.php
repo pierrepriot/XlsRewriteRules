@@ -23,10 +23,12 @@ class XlsRewriteRules
 		if($old==$new){
 			return true;
 		}
-		elseif (str_replace($new, '', $old)=='/'	||	str_replace($new, '', $old)=='//'){
+		elseif (str_replace($new, '', $old)=='/'	||	str_replace($new, '', $old)=='//'){			
 			return true;	
 		}
-		elseif (str_replace($old, '', $new)=='/'	||	str_replace($old, '', $new)=='//'){
+		elseif ((str_replace($old, '', $new)=='/')&&($new!='/')	||	str_replace($old, '', $new)=='//'){
+			var_dump($old);
+			var_dump($new);
 			return true;	
 		}
 		return false;
@@ -44,10 +46,10 @@ class XlsRewriteRules
 				// si nouvelle url vide = /
 				if ($row[$this->colNew]==''){
 					$row[$this->colNew]='/';
-				}
+				}				
 
 				// seulement si si nouvelle url valide
-				if (preg_match('/^\/.*$/si',  $row[$this->colNew])){
+				if ($row[$this->colNew]=='/' || preg_match('/^\/.*$/si',  $row[$this->colNew])){
 
 					// cas querystring
 					if (preg_match('/(.*)\?(.*)/si', $row[$this->colOld], $qs)){				
@@ -55,7 +57,7 @@ class XlsRewriteRules
 						echo 'RewriteRule ^'.$this->removeFirstSlash($qs[1]).'$	'.$row[$this->colNew].' [R=301,L]<br>';			
 					}
 					// normal
-					else{
+					else{						
 						// ignorer les rewrites sur url identique
 						if (!$this->detectIdenticalURLs($row[$this->colOld], $row[$this->colNew])){
 							echo 'RewriteRule ^'.$this->removeFirstSlash($row[$this->colOld]).'$	'.$row[$this->colNew].' [R=301,L]<br>';
